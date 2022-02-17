@@ -38,15 +38,39 @@ exports.addDataSiswa = (request, response) => {
 }
 
 exports.editDataSiswa = (request, response) => {
-    let id_siswa = request.params.id_siswa
-    return response.json({
-        message : `This function for edit data siswa with ID ${id_siswa}`
-    })
+    let id = request.params.id_siswa
+    let dataSiswa = {
+        nama: request.body.nama,
+        nis: request.body.nis,
+        poin: request.body.poin,
+        kelas: request.body.kelas
+    }
+
+    modelSiswa.update(dataSiswa, {where: {id_siswa: id}})
+        .then(result => {
+        return response.json({
+            message: `Data siswa berhasil di ubah`
+            })
+        })
+        .catch(error => {
+        return response.json({
+            message: error.message
+            })
+        })
 }
 
 exports.deleteDataSiswa = (request, response) => {
-    let id_siswa = request.params.id_siswa
-    return response.json({
-        message : `This function for delete data siswa with ID ${id_siswa}`
-    })
+    let id = request.params.id_siswa
+    
+    modelSiswa.destroy({ where: { id_siswa: id }})
+    .then(result => {
+        return response.json({
+            message: `Data siswa berhasil dihapus`
+            })
+        })
+        .catch(error => {
+        return response.json({
+            message: error.message
+            })
+        })
 }

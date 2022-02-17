@@ -3,7 +3,9 @@ const app = express()
 const PORT = 8080
 
 let routes = [
-    { prefix: `/student`, route: require(`./routes/siswa`)}
+    { prefix: `/student`, route: require(`./routes/siswa`)},
+    { prefix: `/user`, route: require(`./routes/user`)},
+    { prefix: `/pelanggaran`, route: require(`./routes/pelanggaran`)}
 ]
 for (let i = 0; i < routes.length; i++) {
     app.use(routes[i].prefix, routes[i].route)
