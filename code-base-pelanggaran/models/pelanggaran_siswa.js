@@ -30,6 +30,10 @@ module.exports = (sequelize, DataTypes) => {
       // key: id_pelanggaran_siswa
       // parent : pelanggaran_siswa, child: detail_pelanggaran_siswa (FK: id_pelanggaran_siswa)
       // tipe: 1 pelanggaran_siswa mempunyai banyak detail pelanggaran (one to many)
+      this.hasMany(models.detail_pelanggaran_siswa,{
+        foreignKey: "id_pelanggaran_siswa",
+        as: "detail_pelanggaran_siswa"
+      })
     }
   }
   pelanggaran_siswa.init({

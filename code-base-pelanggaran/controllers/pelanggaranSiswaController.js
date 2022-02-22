@@ -3,7 +3,11 @@ let detailPelanggaranSiswaModel = require("../models/index").detail_pelanggaran_
 
 exports.getData = async (request, response) => {
     let data = await pelanggaranSiswaModel.findAll({
-        include: ["siswa","user"]
+        include: ["siswa","user",{
+            model: detailPelanggaranSiswaModel,
+            as: "detail_pelanggaran_siswa",
+            include: ["pelanggaran"]
+        }]
     })
     return response.json(data)
 }
