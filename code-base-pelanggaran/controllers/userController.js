@@ -1,5 +1,6 @@
-const md5 = require("md5")
 const req = require("express/lib/request")
+let md5 = require("md5")
+let jwt = require('jsonwebtoken')
 
 // memanggil file model untuk User
 let modelUser = require("../models/index").user
@@ -28,7 +29,7 @@ exports.addDataUser = (request, response) => {
     modelUser.create(newUser)
     .then(result => {
         return response.json({
-            message: `Data user berhasil ditambahkan`
+            message: `JIAKH Data user berhasil ditambahkan`
         })
     })
     .catch(error => {
@@ -49,7 +50,7 @@ exports.editDataUser = (request, response) => {
     modelUser.update(dataUser, { where: {id_user: id} })
     .then(result => {
         return response.json({
-            message: `Data user berhasil diubah`
+            message: `JIAKH Data user berhasil diubah`
         })
     })
     .catch(error => {
@@ -65,7 +66,7 @@ exports.deleteDataUser = (request, response) => {
     modelUser.destroy({where: {id_user: id}})
     .then(result => {
         return response.json({
-            message: `Data user berhasil dihapus`
+            message: `JIAKH Data user berhasil dihapus`
         })
     })   
     .catch(error => {
@@ -73,4 +74,35 @@ exports.deleteDataUser = (request, response) => {
             message: error.message
         })
     })
+}
+
+exports.authentication = async(request, response) => {
+    let data = {
+        username: request.body.username,
+        password: md5(request.body.password)
+    }
+
+    // validasi (cek data di tabel user)
+    let result = await modelUser.findOne({where: data})
+
+    if (result) {
+        // data ditemukan
+
+        // payload adalah data/informasi yang akan dienkripsi
+        let payload = JSON.stringify(result) // konversi dari bentuk objek ke JSON
+        let secretKey = `Sequelize itu sangat menyenangkan`
+
+        // generate token
+        let token = jwt.sign(payload, secretKey)
+        return response.json({
+            logged: true,
+            token: token
+        })
+    }else{
+        // data tidak ditemukan
+        return response.json({
+            logged : false,
+            message: `Who the fuck are you?`
+        })
+    }
 }
