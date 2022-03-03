@@ -1,21 +1,31 @@
 const express = require(`express`)
 const app = express()
 
-app.use(express.json())
+app.use(express.json()) // membaca data dalam format json
 
-// call user controller
-let userController = require("../controllers/userController")
-// endpoint get data user
-app.get("/", userController.getDataUser)
+const userController = require("../controllers/userController")
 
-// endpoint add data user
-app.post("/", userController.addDataUser)
+const userValidator = require("../middlewares/userValidator")
+const authorization = require("../middlewares/authorization")
 
-// endpoint edit user
-app.put("/:id_user", userController.editDataUser)
+// end-point get data user
+app.get("/", [authorization.authorization], userController.getDataUser)
 
-// endpoint delete user
-app.delete("/:id_user", userController.deleteDataUser)
+// end-point add data user
+app.post("/", [
+    authorization.authorization,
+    userValidator.validate], 
+    userController.addDataUser)
+
+// end-point edit data user
+app.put("/:id_user", [
+    authorization.authorization,
+    userValidator.validate],
+    userController.editDataUser)
+
+// end-point delete data user
+app.delete("/:id_user", [authorization.authorization], userController.deleteDataUser)
+
 app.post("/auth", userController.authentication)
 
 module.exports = app

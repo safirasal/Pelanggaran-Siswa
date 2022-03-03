@@ -1,11 +1,15 @@
 const req = require("express/lib/request")
 
+let path = require("path")
+let fs = require("fs")
+
 // memanggil file model untuk siswa
 let modelSiswa = require("../models/index").siswa
 
+
 exports.getDataSiswa = (request, response) => {
     modelSiswa.findAll()
-    .then(result =>{
+    .then(result => {
         return response.json(result)
     })
     .catch(error => {
@@ -16,18 +20,24 @@ exports.getDataSiswa = (request, response) => {
 }
 
 exports.addDataSiswa = (request, response) => {
+    if(!request.file){
+        return response.json({
+            message: `Nothing to upload u dumb fuck`
+        })
+    }
     // tampung data request
     let newSiswa = {
         nama: request.body.nama,
         kelas: request.body.kelas,
         poin: request.body.poin,
-        nis: request.body.nis
+        nis: request.body.nis,
+        image: request.file.filename
     }
 
     modelSiswa.create(newSiswa)
     .then(result => {
         return response.json({
-            message: `Data siswa berhasil ditambahkan`
+            message: `JIAKH Data siswa berhasil ditambahkan`
         })
     })
     .catch(error => {
@@ -37,7 +47,7 @@ exports.addDataSiswa = (request, response) => {
     })
 }
 
-exports.editDataSiswa = (request, response) => {
+exports.editDataSiswa = async (request, response) => {
     let id = request.params.id_siswa
     let dataSiswa = {
         nama: request.body.nama,
@@ -46,31 +56,53 @@ exports.editDataSiswa = (request, response) => {
         kelas: request.body.kelas
     }
 
-    modelSiswa.update(dataSiswa, {where: {id_siswa: id}})
-        .then(result => {
-        return response.json({
-            message: `Data siswa berhasil di ubah`
-            })
-        })
-        .catch(error => {
-        return response.json({
-            message: error.message
-            })
-        })
-}
+    if(request.file){
+        // jika edit menyertakan file gambar
+        let siswa = await modelSiswa.findOne({where: {id_siswa : id}})
+        let oldFileName = siswa.image
 
-exports.deleteDataSiswa = (request, response) => {
-    let id = request.params.id_siswa
-    
-    modelSiswa.destroy({ where: { id_siswa: id }})
+        // delete file
+        let location = path.join(__dirname, "../image", oldFileName)
+        fs.unlink(location, error => console.log(error))
+
+        // menyisipkan nama file baru ke dalam objek dataSiswa
+        dataSiswa.image = request.file.filename
+    }
+    modelSiswa.update(dataSiswa, { where: {id_siswa: id} })
     .then(result => {
         return response.json({
-            message: `Data siswa berhasil dihapus`
-            })
+            message: `JIAKH Data siswa berhasil diubah`
         })
-        .catch(error => {
+    })
+    .catch(error => {
         return response.json({
             message: error.message
-            })
         })
+    })
+}
+
+exports.deleteDataSiswa = async(request, response) => {
+    let id = request.params.id_siswa
+
+    //ambil data yang akan dihapus
+    let siswa = await modelSiswa.findOne({where: {id_siswa: id}})
+    if (siswa) {
+        let oldFileName = siswa.image
+
+        // delete file
+        let location = path.join(__dirname, "../image", oldFileName)
+        fs.unlink(location, error => console.log(error))
+    }
+
+    modelSiswa.destroy({where: {id_siswa: id}})
+    .then(result => {
+        return response.json({
+            message: `JIAKH Data siswa berhasil dihapus`
+        })
+    })   
+    .catch(error => {
+        return response.json({
+            message: error.message
+        })
+    })
 }
