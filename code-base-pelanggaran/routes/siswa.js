@@ -19,6 +19,8 @@ app.get("/", [
 ],
     siswaController.getDataSiswa)
 
+app.post("/find", [authorization.authorization], siswaController.findSiswa)
+
 // end-point add data siswa
 app.post("/", [
     uploadImage.upload.single(`image`),

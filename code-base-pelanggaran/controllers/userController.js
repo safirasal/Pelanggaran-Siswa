@@ -3,6 +3,7 @@ let md5 = require("md5")
 let jwt = require('jsonwebtoken')
 
 const {validationResult} = require(`express-validator`)
+const { request, response } = require("express")
 
 // memanggil file model untuk User
 let modelUser = require("../models/index").user
@@ -18,6 +19,27 @@ exports.getDataUser = (request, response) => {
             message: error.message
         })
     })
+}
+
+exports.findUser = async (request, response) => {
+    let keyword = request.body.keyword
+
+    /** import sequelize operator */
+    let sequelize = require(`sequelize`)
+    let Op = sequelize.Op
+    /**
+     * query = select * from user where username like "%keyword%" or
+     * nama_user like "%keyword%"
+     */
+    let dataUser = await modelUser.findAll({
+        where: {
+            [Op.or] : {
+                username: { [Op.like] : `%${keyword}%`},
+                nama_user: { [Op.like] : `%${keyword}%`}
+            }
+        }
+    })
+    return response.json(dataUser)
 }
 
 exports.addDataUser = (request, response) => {
